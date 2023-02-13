@@ -1,7 +1,147 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 1 here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+</style>
+<title>CS 184 Rasterizer</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+
+<body>
+
+<h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2023</h1>
+<h1 align="middle">Project 1: Rasterizer</h1>
+<h2 align="middle">Alex Jean and Kevyn Ramirez, CS184-makimas-dogs</h2>
+
+<br><br>
+
+<div>
+
+<h2 align="middle">Overview</h2>
+<p>Give a high-level overview of what you implemented in this project. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the project.</p>
+
+<h2 align="middle">Section I: Rasterization</h2>
+
+<h3 align="middle">Part 1: Rasterizing single-color triangles</h3>
+
+<p>We rasterize triangles by using running the 3-Line Test on each point contained within the bounding box of the given triangle. 
+  First, we calculate the bounding box by finding the minimum/maximum for the x and y coordinates of the given points. We also calculate
+  the slopes needed for the 3-Line test. Then we iterate through each point within the bounding box and run the 3-Line test. In order
+  to ensure the triangle is able to be drawn regardless of the winding order of the verticies, we check all sides of the triangle, 
+  including whether the point is exactly on a line. If it passes the test, we call fill_pixel() to draw the point. </p>
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/task_1_test4.png" align="middle" width="400px"/>
+        <figcaption align="middle">Render of basic/test4.svg with default parameters.</figcaption>
+      </td>
+      <td>
+        <img src="images/task_1_test4_zoomed.png" align="middle" width="400px"/>
+        <figcaption align="middle">We can observe how regular sampling may not be able to render every detail when the bounding triangles are too "thin".</figcaption>
+      </td>
+    </tr>
+    <br>
+    <tr>
+      <td>
+        <img src="images/task_1_test4_zoomed_2.png" align="middle" width="400px"/>
+        <figcaption align="middle">Here we observe "jaggies" which is a result of discrete sampling at 1 pixel.</figcaption>
+      </td>
+      <td>
+        <img src="images/task_1_test6.png" align="middle" width="400px"/>
+        <figcaption align="middle">Render of basic/test6.svg, showing rendering regardless of triangle order.</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+<h3 align="middle">Part 2: Antialiasing triangles</h3>
+<p>
+  Supersampling is important becauses it allows us to render more details to avoid artifacts like jaggies or disappearing lines.
+</p>
+<p>
+  To implement supersampling, we thought of it like "sampling a larger resolution image, then downsampling by averaging to the original resolution".
+  We changed the size of our sample_buffer to <i>sample_rate * width * height</i>; for example, if we had a sample rate of 4, we would be sampling 
+  4 times as many pixels. Because of this adjustment, we had to fix the implementations of other functions to account for the new sample_buffer size.
+</p>
+<p>
+  We first changed all calls to resize the frame buffer to take account the new sample_buffer size. We edited fill_pixel() to take into account
+  the new frame buffer size by multiplying the width by <i>sqrt(sample_size)</i>. We edited rasterize_point() to take account the new width and height
+  when performing bounds check. For rasterize_line(), we had to scale the (x, y) coordinates by <i>sqrt(sample_size)</i>, since we were sampling
+  <i>sqrt(sample_rate) * sqrt(sample_rate) </i> more points. For rasterize triangle, we only needed to change the scaling of the 3 given (x, y) coordinates,
+  the same way we changed rasterize_line(), by scaling by a factor of <i>sqrt(sample_rate)</i>. This accounted for the adjustments made in the coordinates system.
+</p>
+
+<p> 
+  The last thing we had to change in our rasterization pipeline was resolve_to_framebuffer(), which took the data stored in the upscaled sample_buffer, averaged
+  <i>sample_size</i> pixels at a time, and stored the result of the averaged pixels on a corresponding entry of the output framebuffer. To implement this, we
+  iterated over the <i>width * height</i> number of pixels, and for each pixel, we would iterate through <i>sqrt(sample_size) * sqrt(sample_size)</i> pixels using
+  clever indexing. We averaged the color values at each pixel, and stored the result of each averaged pixel in the <i>rgb_framebuffer_target</i>.
+</p>
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/task2_default_view.png" align="middle" width="400px"/>
+        <figcaption align="middle">Render of basic/test4.svg with default parameters.</figcaption>
+      </td>
+      <td>
+        <img src="images/task2_ss1.png" align="middle" width="400px"/>
+        <figcaption align="middle">Zoomed in on right side of the red triangle to observe jaggies at a sample rate of 1 (no supersampling).</figcaption>
+      </td>
+    </tr>
+    <br>
+    <tr>
+      <td>
+        <img src="images/task2_ss4.png" align="middle" width="400px"/>
+        <figcaption align="middle">With a sample rate of 4, we can observe the effects of supersampling causing "blurriness", but as a result, the image
+        looks "sharper" when viewed at a normal resolution. </figcaption>
+      </td>
+      <td>
+        <img src="images/task2_ss16.png" align="middle" width="400px"/>
+        <figcaption align="middle">A sample rate of 16 gives even more dramatic effects of blurring, but the overall approximation and averaging
+        of the pixels makes it a much higher quality image.</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+<h3 align="middle">Part 3: Transforms</h3>
+
+
+
+<h2 align="middle">Section II: Sampling</h2>
+
+<h3 align="middle">Part 4: Barycentric coordinates</h3>
+
+
+<h3 align="middle">Part 5: "Pixel sampling" for texture mapping</h3>
+
+
+<h3 align="middle">Part 6: "Level sampling" with mipmaps for texture mapping</h3>
+
+
+
+<h2 align="middle">Section III: Art Competition</h2>
+<p>If you are not participating in the optional art competition, don't worry about this section!</p>
+
+<h3 align="middle">Part 7: Draw something interesting!</h3>
+
+</body>
 </html>
