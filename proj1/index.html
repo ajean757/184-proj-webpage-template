@@ -32,15 +32,29 @@
 <div>
 
 <h2 align="middle">Overview</h2>
-<p>Give a high-level overview of what you implemented in this project. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the project.</p>
+<p>In this project, we were given the tasks of implementing rasterization, supersampling, transforms, and various antialiasing methods. 
+   We broke down the process of rasterizing an SVG file by breaking the file down into it's basic triangles, iterating through them, and identifying
+    whether a point was within a given triangle or not. Once that was accomplished, we applied supersampling to render a higher quality image
+    with much less aliasing by sampling in various locations within a pixel within a triangle. After being satisfied with our implementation of
+    a basic rasterizer, we moved on to making sure we can handle transformations of triangles: translations, scalings, and rotations.</p>
 
+<p>From here we began to implement texture sampling. We made use of barycentric coordinates to perform a coordinate transform from the canvas coordinates
+  to the texture coordinates, using similar sampling techniques as rasterization. We also implemented more advanced sampling techniques such as
+  bilinear sampling, which was able to improve image quality by removing some image artifacts. We made further image and performance improvements by using mipmaps, a 
+  technique where lower resolution textures are stored along with the original resolution textures. This allows us to sample from lower resolution
+  textures when the render distance is farther away, reducing effects like moire. </p>
+
+<p>
+  Overall, this was a really fun project that gave us a more technical understanding of how graphics are rendered in real life applications, such as videogames!
+</p>
 <h2 align="middle">Section I: Rasterization</h2>
 
 <h3 align="middle">Part 1: Rasterizing single-color triangles</h3>
 
 <p>We rasterize triangles by using running the 3-Line Test on each point contained within the bounding box of the given triangle. 
   First, we calculate the bounding box by finding the minimum/maximum for the x and y coordinates of the given points. We also calculate
-  the slopes needed for the 3-Line test. Then we iterate through each point within the bounding box and run the 3-Line test. In order
+  the slopes needed for the 3-Line test. Then we iterate through each point within the bounding box of the triangle and run the 3-Line test.
+  This ensures that we don't check every single pixel rendered on the canvas. In order
   to ensure the triangle is able to be drawn regardless of the winding order of the verticies, we check all sides of the triangle, 
   including whether the point is exactly on a line. If it passes the test, we call fill_pixel() to draw the point. </p>
 <div align="middle">
@@ -80,14 +94,13 @@
   4 times as many pixels. Because of this adjustment, we had to fix the implementations of other functions to account for the new sample_buffer size.
 </p>
 <p>
-  We first changed all calls to resize the frame buffer to take account the new sample_buffer size. We edited fill_pixel() to take into account
-  the new frame buffer size by multiplying the width by <i>sqrt(sample_size)</i>. We edited rasterize_point() to take account the new width and height
+  We first changed all calls to resize the frame buffer to take account of the new sample_buffer size. We edited fill_pixel() to take into account
+  the new frame buffer size by multiplying the width by <i>sqrt(sample_size)</i>. We edited rasterize_point() to take account of the new width and height
   when performing bounds check. For rasterize_line(), we had to scale the (x, y) coordinates by <i>sqrt(sample_size)</i>, since we were sampling
-  <i>sqrt(sample_rate) * sqrt(sample_rate) </i> more points. For rasterize triangle, we only needed to change the scaling of the 3 given (x, y) coordinates,
+  <i>sqrt(sample_rate) * sqrt(sample_rate)</i> more points. For rasterize triangle, we only needed to change the scaling of the 3 given (x, y) coordinates,
   the same way we changed rasterize_line(), by scaling by a factor of <i>sqrt(sample_rate)</i>. This accounted for the adjustments made in the coordinates system.
 </p>
-
-<p> 
+<p>
   The last thing we had to change in our rasterization pipeline was resolve_to_framebuffer(), which took the data stored in the upscaled sample_buffer, averaged
   <i>sample_size</i> pixels at a time, and stored the result of the averaged pixels on a corresponding entry of the output framebuffer. To implement this, we
   iterated over the <i>width * height</i> number of pixels, and for each pixel, we would iterate through <i>sqrt(sample_size) * sqrt(sample_size)</i> pixels using
@@ -121,27 +134,165 @@
   </table>
 </div>
 
-
 <h3 align="middle">Part 3: Transforms</h3>
 
+<p>We edited cubeman's svg file to make him look like he's cheering while doing the splits. We did this by switching the transforms of all the triangles that make up both legs.
+Then applying a translation transform to each so that cubemans legs are horizontal. We also applied rotational transforms to the arms so it looks like they're raised diagonally,
+and used translation transforms so they look like they're lined up as an arm should be. We removed the transformation of the head. </p>
+
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/cubeman.png" align="middle" width="400px"/>
+        <figcaption align="middle">Render of cubeman celebrating that he can do the splits.</figcaption>
+      </td>
+	</tr>
+  </table>
+</div>
 
 
 <h2 align="middle">Section II: Sampling</h2>
 
 <h3 align="middle">Part 4: Barycentric coordinates</h3>
 
+<p>
+Barycentric coordinates are a different approach to finding coordinates within a triangle. The way it works is that A, B, and C represent the (x, y) coordinates for each vertex of the triangle,
+and alpha, beta, and gamma signify the "weight", or how close the coordinate within the triangle is to a given vertex. When each weight is multiplied by its respective vertex, and the
+products are summed up, we're given a point. If all the products are positive, then our point is within the triangle. Otherwise it's outside the triangle.
+</p>
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/barycentric_triangle.png" align="middle" width="400px"/>
+        <figcaption align="middle">Render of a triangle, where each vertex is weighted to a color, and all the colors within it
+          are computed using barycentric coordinates.</figcaption>
+      </td>
+	</tr>
+  </table>
+</div>
+
+<p>
+  The triangle above shows us how colors change depending on where in the triangle a point is. While we're close to the vertex, each individual color will 
+  be stronger since the "weight" for that vertex is close to 1 and the weights for the other two verticies are closer to 0. As we approach the middle of the
+  triangle, the color will start being affected by weights from all verticies, which is why we see the blending of colors. 
+</p>
+
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/test7.png" align="middle" width="400px"/>
+        <figcaption align="middle">Result of running test7.</figcaption>
+      </td>
+	</tr>
+  </table>
+</div>
 
 <h3 align="middle">Part 5: "Pixel sampling" for texture mapping</h3>
 
+<p>
+  Pixel sampling is similar to sampling for single colors, except we have to do some coordinate conversions with barycentric coordinates. We use a similar method
+  to normal sampling with barycentric coordinates, where we compute alpha, beta, and gamma values to perform point-in-triangle tests. If a point is inside
+  the triangle, we convert the provided texture coordinates <i>(u0, v0), (u1, v1), (u2, v2)</i> with the barycentric weights and pass that into the relevant
+  sample function. We have to do this because the coordinate system for our output canvas is not the same as our coordinate system for our texture. Once the 
+  coordinates are converted, we can use nearest sampling or bilinear sampling to sample the desired textures. Nearest sampling simply rounds the <i>uv</i>
+  coordinates to the nearest integer (pixel) value, and samples from there. Bilinear sampling takes the weighted average of the closest 4 pixels, using linear
+  interpolation to perform the computation.
+</p>
+
+<div align="middle">
+  <table style="width=100%">
+    <tr>
+      <td>
+        <img src="images/nearest_one_samp.png" align="middle" width="400px"/>
+        <figcaption align="middle">Nearest sampling at 1 sample per pixel.</figcaption>
+      </td>
+      <td>
+        <img src="images/nearest_16_samp.png" align="middle" width="400px"/>
+        <figcaption align="middle">Nearest sampling at 16 samples per pixel.</figcaption>
+      </td>
+    </tr>
+    <br>
+    <tr>
+      <td>
+        <img src="images/bilinear_one_samp.png" align="middle" width="400px"/>
+        <figcaption align="middle">Bilinear sampling at 1 sample per pixel. </figcaption>
+      </td>
+      <td>
+        <img src="images/bilinear_16_samp.png" align="middle" width="400px"/>
+        <figcaption align="middle">Bilinear sampling at 16 samples per pixel.</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<p>We can see that when it comes to irregular shapes, such as the first couple letters of "Berkeley", bilinear sampling gives us a better result than linear.
+  This is because bilinear sampling takes the weighted average of the 4 closest pixels, which will cause a "blur" effect, in other words, anti-aliasing. Contrary to what one might think, the
+  blur effect actually helps make small detail "clearer" by removing the jaggies. Whereas using nearest sampling will only sample the nearest pixel, it will still
+  leave many of the artifacts in the output image. We will see larger differences between the two methods when it comes to small details, such as text or intricate 
+  patterns. Nearest sampling will try to approximate the sampled textures and result in a "messier" image due to all the jaggies, but bilinear sampling will
+  be able to smooth out the details and create a sharper image.
+</p>
 
 <h3 align="middle">Part 6: "Level sampling" with mipmaps for texture mapping</h3>
 
+<p>
+  In level sampling, we use a mipmap to sample our textures and calculate which level(s) to sample at depending on the technique used. A mipmap stores the original
+  resolution texture along with lower resolution versions of the textures. While this results in increased memory needed to store the additional textures, the
+  performance gains and benefits outweigh the costs. This is because our level at which we sample depends on the distance at which we are trying to render. 
+  A texture that is farther away from the camera will use a higher mipmap level; in other words, the further away an image is, the smaller our mipmap texture resolution
+  will be. This reduces moire and aliasing artifacts on patterns and textures that are further away by reducing the level of detail from which they are rendered. 
+  The closer we are to the camera, the higher resolution we will sample from. This means that we will still preserve detail that's up close while preventing textures that
+  are further away from being too detailed and aliased.
+</p>
 
+<p>
+  L_ZERO means we're sampling at the full resolution mipmap, which won't recieve any of the benefits described as above. 
+  L_NEAREST means we're sampling at nearest mipmap level. We compute the mipmap level by approximating the derivative of the <i>(u, v)</i> coordinates
+  with respect to the <i>x</i> and <i>y</i> directions. The higher the derivative, implies the further away a distance is, thus we render from a higher level mipmap.
+  L_LINEAR means instead of rounding the mipmap level, we will sample at the two closest mipmap levels and take their weighted average using linear interpolation.
+  We compute this by using <i>floor()</i> and <i>ceil()</i>. L_LINEAR takes more computation time than L_NEAREST because it has to perform more texel reads
+  and <i>lerp</i> calls. However, it does achieve a better look. There is another benefit of sampling at higher level mipmaps because they are more cache efficient, since 
+  less memory is needed to store the lower resolution mipmaps, we result in fewer cache misses. 
+</p>
+
+<div align="middle">
+    <table style="width=100%">
+        <tr>
+            <td>
+                <img src="images/zero_nearest.png" align="middle" width="400px" />
+                <figcaption align="middle">L_ZERO and P_NEAREST.</figcaption>
+            </td>
+            <td>
+                <img src="images/zero_linear.png" align="middle" width="400px" />
+                <figcaption align="middle">L_ZERO and P_LINEAR.</figcaption>
+            </td>
+        </tr>
+        <br />
+        <tr>
+            <td>
+                <img src="images/nearest_nearest.png" align="middle" width="400px" />
+                <figcaption align="middle">L_NEAREST and P_NEAREST. </figcaption>
+            </td>
+            <td>
+                <img src="images/nearest_linear.png" align="middle" width="400px" />
+                <figcaption align="middle">L_NEAREST and P_LINEAR.</figcaption>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<p>Both of the P_NEAREST combinations show a noticable amount of aliasing, in our example we see this when we zoom in to the edges of Gut's
+   armor. Once we use the P_LINEAR method we see the details in the armor become much smoother. The L_NEAREST and P_LINEAR combination looks
+   better than the L_ZERO and P_LINEAR combination because the mipmap is non-zero using the L_NEAREST method, which allows for smaller details
+   to use a smaller resolution of the original picture, getting rid of aliasing and improving the quality of the image.</p>
 
 <h2 align="middle">Section III: Art Competition</h2>
 <p>If you are not participating in the optional art competition, don't worry about this section!</p>
 
 <h3 align="middle">Part 7: Draw something interesting!</h3>
-
+<h2 align="middle"><a text-align="middle" href="https://ajean757.github.io/184-proj-writeups/proj1/index.html">Writeup</a></h2>
 </body>
 </html>
