@@ -1,7 +1,399 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 2 here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>
+  body {
+    background-color: white;
+    padding: 100px;
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    color: #121212;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+  kbd {
+    color: #121212;
+  }
+</style>
+<title>CS 184 Mesh Edit</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+
+<script>
+  MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+<script id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+
+</head>
+
+
+<body>
+
+<h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2023</h1>
+<h1 align="middle">Project 2: Mesh Edit</h1>
+<h2 align="middle">Alex Jean and Kevyn Ramirez</h2>
+
+<br><br>
+
+<div>
+
+<h2 align="middle">Overview</h2>
+<p>
+    YOUR RESPONSE GOES HERE
+</p>
+<br>
+
+
+<h2 align="middle">Section I: Bezier Curves and Surfaces</h2>
+
+<h3 align="middle">Part 1: Bezier Curves with 1D de Casteljau Subdivision</h3>
+
+
+<b>
+  Briefly explain de Casteljau's algorithm and how you implemented it in order to evaluate Bezier curves.
+</b>
+<p>
+    de Casteljau's algorithm works by recursively applying linear interpolation on two points on a control curve until we get one point that lies
+  on the Bezier curve. Our initial interpolated points will lie on the control curve, but as we perform more iterations on the new lines created
+  by the new interpolated points, we will eventually get a point that lies outside of the initial control curve and on the Bezier curve. 
+</p>
+<p>
+  We implemented de Castelejau's algorithm by defining a <i>lerp()</i> function and performing the each step of the recursion one function call at a time.
+  Each call to <i>evaluateStep()</i> would create an array <i>nextPoints</i> of <i>Vector2D</i> points, that would be of length n-1, where n is the size of the input array. 
+  Each point added to <i>nextPoints</i> was the linear interpolation of two points from the input array. 
+</p>
+<br>
+
+
+<b>
+  Take a look at the provided .bzc files and create your own Bezier curve with 6 control points of your choosing. Use this Bezier curve for your screenshots below.
+</b>
+<p>
+    YOUR RESPONSE GOES HERE
+</p>
+<!-- Example of including a single figure -->
+<div align="middle">
+  <img src="images/your_file.png" align="middle" width="50%">
+</div>
+<br>
+
+<b>
+  Show screenshots of each step / level of the evaluation from the original control points down to the final evaluated point. Press <kbd>E</kbd> to step through. Toggle <kbd>C</kbd> to show the completed Bezier curve as well.
+</b>
+<!-- Example of including multiple figures -->
+<div align="middle">
+  <table style="width:100%">
+    <tr align="center">
+      <td>
+        <img src="images/your_file.png" align="middle" width="400px"/>
+        <figcaption>Level 0</figcaption>
+      </td>
+      <td>
+        <img src="images/your_file.png" align="middle" width="400px"/>
+        <figcaption>Level 1</figcaption>
+      </td>
+    </tr>
+    <br>
+    <tr align="center">
+      <td>
+        <img src="images/your_file.png" align="middle" width="400px"/>
+        <figcaption>Level 2</figcaption>
+      </td>
+      <td>
+        <img src="images/your_file.png" align="middle" width="400px"/>
+        <figcaption>Level 3</figcaption>
+      </td>
+    </tr>
+    <br>
+    <tr align="center">
+      <td>
+        <img src="images/your_file.png" align="middle" width="400px"/>
+        <figcaption>Level 4</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+<br>
+
+
+<b>
+  Show a screenshot of a slightly different Bezier curve by moving the original control points around and modifying the parameter \(t\) via mouse scrolling.
+</b>
+<p>
+    YOUR RESPONSE GOES HERE
+</p>  
+<br>
+
+
+<h3 align="middle">Part 2: Bezier Surfaces with Separable 1D de Casteljau</h3>
+<b>
+  Briefly explain how de Casteljau algorithm extends to Bezier surfaces and how you implemented it in order to evaluate Bezier surfaces.
+</b>
+<p>
+    YOUR RESPONSE GOES HERE
+</p>
+<br>
+
+
+<b>
+  Show a screenshot of bez/teapot.bez (not .dae) evaluated by your implementation.
+</b>
+<p>
+    YOUR RESPONSE GOES HERE
+</p>
+<br>
+
+
+<h2 align="middle">Section II: Triangle Meshes and Half-Edge Data Structure</h2>
+
+<h3 align="middle">Part 3: Area-Weighted Vertex Normals</h3>
+
+<b>
+  Briefly explain how you implemented the area-weighted vertex normals.
+</b>
+<p>
+    YOUR RESPONSE GOES HERE
+</p>
+<br>
+
+
+<b>
+  Show screenshots of dae/teapot.dae (not .bez) comparing teapot shading with and without vertex normals. Use <kbd>Q</kbd> to toggle default flat shading and Phong shading.
+</b>
+<p>
+    YOUR RESPONSE GOES HERE
+</p>
+<br>
+
+
+<h3 align="middle">Part 4: Edge Flip</h3>
+<b>
+  Briefly explain how you implemented the edge flip operation and describe any interesting implementation / debugging tricks you have used.
+</b>
+<p>
+    We implemented the flip operation by first drawing out a diagram of how the new HalfEdges, Faces, Edges, and Verticies would change. First, we created
+  Iter objects to every one of the HalfEdges, Faces, Edges, and Verticies of the triangle traversable by the flipped Edge e0. Then we
+  translated the diagram by updating each of the respective pointers. We followed the reccomendation by updating all pointers even if they wouldn't change.
+
+</p>
+
+<br>
+
+
+<b>
+  Show screenshots of the teapot before and after some edge flips.
+</b>
+<div align="middle">
+  <table style="width:100%">
+    <tr align="center">
+      <td>
+        <img src="images/task4_teapot_before.png" align="middle" width="400px" />
+        <figcaption>Teapot before edge flips</figcaption>
+      </td>
+      <td>
+        <img src="images/task4_teapot_after.png" align="middle" width="400px" />
+        <figcaption>Teapot after edge flips</figcaption>
+      </td>
+    </tr>
+    <br />
+    <br />
+  </table>
+</div>
+<br>
+
+
+<b>
+    Write about your eventful debugging journey, if you have experienced one.
+</b>
+<p>
+    We intially had issues occur where flipping an edge would cause one of the bordering edges to disappear. The disappearing edge
+  seemed to rotate around each outer edge as we kept flipping. This led us to believe a pointer was being incorrectly assigned. After carefully scrutinizing 
+  our code, it turns out that one of our pointers was initially incorrectly assigned, which fixed our issue. We also chose to rewrite this function because 
+  initially, we were overcomplicating the pointer reassignments by rotating all the half edges clockwise, rather than just reassigning new positions.
+  While our code still remained the same length (since we still meticulously assigned every pointer), it potentially helped solve bugs that were
+  arising in part 6.
+</p>
+<br>
+
+
+<h3 align="middle">Part 5: Edge Split</h3>
+<b>
+  Briefly explain how you implemented the edge split operation and describe any interesting implementation / debugging tricks you have used.
+</b>
+<p>
+    We followed a similar approach to part 4, where we first drew out the diagram of how new components would be created and how exisiting components
+  would be reassigned. Translating the diagram to code was relatively simple, we just carefully assigned every pointer to its new pointer after the
+  edge split. We initially created 4 Faces to replace the two existing ones, and two new HalfEdges to replace h0 and h3. This meant that we had to 
+  delete unused elements, e0, h0, h3, f0, and f1. While this initially worked for independently testing this function, we encountered issues such as infinite
+  loops or null pointer accesses when working on part 6. We decided to change the implementation so that we wouldn't have to delete any unused elements. We 
+  did this by just reassigning the old elements and creating a few less objects. This helped fix the null pointer accesses and some of the infinite loops
+  we encountered in part 6.
+</p>
+<br>
+
+
+<b>
+    Show screenshots of a mesh before and after some edge splits. 
+</b>
+<div align="middle">
+  <table style="width:100%">
+    <tr align="center">
+      <td>
+        <img src="images/task5_cube_before.png" align="middle" width="400px" />
+        <figcaption>Cube before edge splits</figcaption>
+      </td>
+      <td>
+        <img src="images/task5_cube_after.png" align="middle" width="400px" />
+        <figcaption>Cube after edge splits</figcaption>
+      </td>
+    </tr>
+    <br />
+    <br />
+  </table>
+</div>
+<br>
+
+
+<b>
+    Show screenshots of a mesh before and after a combination of both edge splits and edge flips.
+</b>
+<div align="middle">
+  <table style="width:100%">
+    <tr align="center">
+      <td>
+        <img src="images/task5_teapot_before.png" align="middle" width="400px" />
+        <figcaption>Teapot before edge flips and splits</figcaption>
+      </td>
+      <td>
+        <img src="images/task5_teapot_after.png" align="middle" width="400px" />
+        <figcaption>Teapot after edge flips and splits</figcaption>
+      </td>
+    </tr>
+    <br />
+    <br />
+  </table>
+</div>
+<br>
+<br>
+
+
+<b>
+    Write about your eventful debugging journey, if you have experienced one.
+</b>
+<p>
+    We had to debug this function twice: once when we were implementing it, another when we were implementing part 6. The first time, the program would
+  crash after splitting an edge more than two or three times. It turns out it was another incorrect pointer assignment, and forgetting to assign some pointers,
+  such as edges to halfedges. When implementing part 6, we came across null pointer accesses and infinite loops during the calls to <i>splitEdge()</i>, so
+  we decided to rewrite our function such that we weren't deleting any elements. Although it took a while to realize splitEdge() was causing the issues,
+  we were able to resolve some issues in part 6 with this fix.
+</p>
+<br>
+
+
+<b>
+    If you have implemented support for boundary edges, show screenshots of your implementation properly handling split operations on boundary edges.
+</b>
+<p>
+    N/A
+</p>
+<br>
+
+
+<h3 align="middle">Part 6: Loop Subdivision for Mesh Upsampling</h3>
+<b>
+  Briefly explain how you implemented the loop subdivision and describe any interesting implementation / debugging tricks you have used.
+</b>
+<p>
+    We used the reccomended code skeleton to implement loop subdivision. First, we iterate through every vertex, computing its new position as the sum of
+  its neighboring verticies and its current position multiplied by some weights, storing it in its <i>new_position</i> attribute. To get the verticies, 
+  we iterated through each HalfEdge corresponding to the vertex. We also marked each vertex as belonging to the old mesh by setting the <i>is_new</i>
+flag to false. Then, we iterate through every edge, computing it's new "midpoint" position as the weighted sum of its vertex positions of the two bounding triangles.
+  To get the verticies of the triangles, we iterated through the HalfEdges corresponding to the each Edge. 
+
+</p>
+<p>
+  After computing the new vertex positions, we split every edge that was part of the mesh by iterating over each edge and checking that it wasn't a boundary
+  edge or a newly created split edge. We did this by getting the HalfEdges from the vertex outputted by <i>splitEdge()</i> and marking the newly created
+  edges' <i>is_new</i> to <i>true</i> and marking the other two edges that was part of the original edge as <i>false</i>. We then assigned the newly created split vertex
+  as new and updated its <i>new_position</i> to the one we computed from the edge midpoint.
+</p>
+
+  <p>
+    After splitting all the edges, we perform flips on any edge that connects an old and new vertex. We iterated through all the edges and checked if 
+    one of the new verticies was old and the other was new, and made sure it wasn't a boundary edge and that <i>is_new</i> is true. We then call
+    <i>flip_edge()</i> on that edge.
+  </p>
+  <p>
+    Finally, we iterate through every vertex and update its position as long as it's not on a boundary. This resolves infinite lines drawn on boundaries in meshes
+    like beetle.dae and maxplanck.dae.
+  </p>
+<br>
+
+
+<b>
+  Take some notes, as well as some screenshots, of your observations on how meshes behave after loop subdivision. What happens to sharp corners and edges? Can you reduce this effect by pre-splitting some edges?
+</b>
+<p>
+    YOUR RESPONSE GOES HERE
+</p>
+<br>
+
+
+<b>
+  Load dae/cube.dae. Perform several iterations of loop subdivision on the cube. Notice that the cube becomes slightly asymmetric after repeated subdivisions. Can you pre-process the cube with edge flips and splits so that the cube subdivides symmetrically? Document these effects and explain why they occur. Also explain how your pre-processing helps alleviate the effects.
+</b>
+<p>
+    YOUR RESPONSE GOES HERE
+</p>
+<br>
+
+
+<b>
+    If you have implemented any extra credit extensions, explain what you did and document how they work with screenshots.
+</b>
+<p>
+    YOUR RESPONSE GOES HERE
+</p>
+<br>
+
+
+<h3 align="middle">Part 7 (Optional, Possible Extra Credit)</h3>
+<b>
+    Save your best polygon mesh as partsevenmodel.dae in your docs folder and show us a screenshot of the mesh in your write-up.
+</b>
+<p>
+    YOUR RESPONSE GOES HERE
+</p>
+<br>
+
+
+<b>
+    Include a series of screenshots showing your original mesh and your mesh after one and two rounds of subdivision. If you have used custom shaders, include screenshots of your mesh with those shaders applied as well.
+</b>
+<p>
+    YOUR RESPONSE GOES HERE
+</p>
+<br>
+
+
+<b>
+    Describe what you have done to enhance your mesh beyond the simple humanoid mesh described in the tutorial.
+</b>
+<p>
+    YOUR RESPONSE GOES HERE
+</p>
+<br>
+
+
+</body>
 </html>
