@@ -48,6 +48,9 @@
 <div>
 
 <h2 align="middle">Overview</h2>
+  <div align="middle">
+  <img src="images/overview_torus.PNG" align="middle" width="300px">
+</div>
 <p>
     YOUR RESPONSE GOES HERE
 </p>
@@ -69,8 +72,9 @@
 </p>
 <p>
   We implemented de Castelejau's algorithm by defining a <i>lerp()</i> function and performing the each step of the recursion one function call at a time.
-  Each call to <i>evaluateStep()</i> would create an array <i>nextPoints</i> of <i>Vector2D</i> points, that would be of length n-1, where n is the size of the input array. 
-  Each point added to <i>nextPoints</i> was the linear interpolation of two points from the input array. 
+  Each call to <i>evaluateStep()</i> would create an array <i>nextPoints</i> of <i>Vector2D</i> points, that would be of length \(n-1\), where \(n\) is the size of the input array. 
+  Each point added to <i>nextPoints</i> was the linear interpolation of two points from the input array. We repeat this until we have an array of length 
+  1, which represents the one point that lies on the Bezier curve.
 </p>
 <br>
 
@@ -140,7 +144,17 @@
   Briefly explain how de Casteljau algorithm extends to Bezier surfaces and how you implemented it in order to evaluate Bezier surfaces.
 </b>
 <p>
-    YOUR RESPONSE GOES HERE
+    When applying de Casteljau's algorithm to surfaces, we have to linearly interpolate points in 2 dimensions of the \(n \times n\) grid of control points. 
+  The Bezier surface is defined by the parameters \((u, v)\), which represent postions that lie on the surfafce.
+  First, we run de Casteljau's on one dimension of the control point grid to get a list of intermediate interpolated points, \(P_i\) in 1 dimension that lie on the Bezier curve
+  on \(u\). We then take those intermediate points and run de Casteljau's again to get a final point \(P\) that lies on \(u\) and \(v\).
+</p>
+<p>
+  We defined three functions to implement this: <i>evaluateStep()</i>, <i>evaluate1D()</i>, and <i>evaluate()</i>. <i>evaluateStep()</i> behaves like the
+  function we defined in part 1 where it performs 1 step of de Casteljau's, but updated to interpolate 3-D coordinates. <i>evaluate1D()</i> makes many calls to
+  <i>evaluateStep()</i> such that we complete de Casteljau's algorithm for 1 dimension of control points. <i>evaluate()</i> takes in the \(n \times n\) grid 
+  of control points, makes calls to <i>evaluate1D</i>, and outputs a single control point \(P\) that lies on the Bezier surface.
+  an
 </p>
 <br>
 
@@ -294,7 +308,7 @@
     We had to debug this function twice: once when we were implementing it, another when we were implementing part 6. The first time, the program would
   crash after splitting an edge more than two or three times. It turns out it was another incorrect pointer assignment, and forgetting to assign some pointers,
   such as edges to halfedges. When implementing part 6, we came across null pointer accesses and infinite loops during the calls to <i>splitEdge()</i>, so
-  we decided to rewrite our function such that we weren't deleting any elements. Although it took a while to realize splitEdge() was causing the issues,
+  we decided to rewrite our function such that we weren't deleting any elements. Although it took a while to realize <i>splitEdge()</i> was causing the issues,
   we were able to resolve some issues in part 6 with this fix.
 </p>
 <br>
@@ -314,7 +328,7 @@
   Briefly explain how you implemented the loop subdivision and describe any interesting implementation / debugging tricks you have used.
 </b>
 <p>
-    We used the reccomended code skeleton to implement loop subdivision. First, we iterate through every vertex, computing its new position as the sum of
+    To implement loop subdivision, first, we iterate through every vertex, computing its new position as the sum of
   its neighboring verticies and its current position multiplied by some weights, storing it in its <i>new_position</i> attribute. To get the verticies, 
   we iterated through each HalfEdge corresponding to the vertex. We also marked each vertex as belonging to the old mesh by setting the <i>is_new</i>
 flag to false. Then, we iterate through every edge, computing it's new "midpoint" position as the weighted sum of its vertex positions of the two bounding triangles.
@@ -344,8 +358,66 @@ flag to false. Then, we iterate through every edge, computing it's new "midpoint
   Take some notes, as well as some screenshots, of your observations on how meshes behave after loop subdivision. What happens to sharp corners and edges? Can you reduce this effect by pre-splitting some edges?
 </b>
 <p>
-    YOUR RESPONSE GOES HERE
+    It seems that corners verticies with an odd number of edges result in subdivisions that skew the resulting mesh in a way that creates an asymmetric 
+  region. For example, when subdividing the cube without any preprocessing, each of the corners portrude outwards compared to faces of the cube. This can be shown in
+  the resulting images below.
 </p>
+<div align="middle">
+  <table style="width:100%">
+    <tr align="center">
+      <td>
+        <img src="images/task6_asym_cube0.PNG" align="middle" width="400px" />
+        <figcaption>Cube without preprocessing, no subdivisions</figcaption>
+      </td>
+      <td>
+        <img src="images/task6_asym_cube1.PNG" align="middle" width="400px" />
+        <figcaption>Cube after 1 iteration of subdivision</figcaption>
+      </td>
+    </tr>
+    <tr align="center">
+      <td>
+        <img src="images/task6_asym_cube2.PNG" align="middle" width="400px" />
+        <figcaption>Cube after 2 iterations of subdivision</figcaption>
+      </td>
+      <td>
+        <img src="images/task6_asym_cube3.PNG" align="middle" width="400px" />
+        <figcaption>Cube after 3 iterations of subdivision</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
+<br>
+
+<p>
+  If we preprocess the cube by performing some edge splits such that all corners have the same number of edges, we can create a more symmetrical 
+  render when we upsample. However, just by performing edge splits, the cube will become rounder and won't maintain it's sharper features the more we subdivide.
+  Because the preprocessing resulted in more edges on each corner compared to the faces of the cube, the corners will become rounder
+  faster than the faces of the cube as we repeatedly subdivide. This leads to the rounder shape that we observe.
+</p>
+<div align="middle">
+  <table style="width:100%">
+    <tr align="center">
+      <td>
+        <img src="images/task6_presplit_cube0.PNG" align="middle" width="400px" />
+        <figcaption>Cube preprocessed with only edge splits, no subdivisions</figcaption>
+      </td>
+      <td>
+        <img src="images/task6_presplit_cube1.PNG" align="middle" width="400px" />
+        <figcaption>Cube after 1 iteration of subdivision</figcaption>
+      </td>
+    </tr>
+    <tr align="center">
+      <td>
+        <img src="images/task6_presplit_cube2.PNG" align="middle" width="400px" />
+        <figcaption>Cube after 2 iterations of subdivision</figcaption>
+      </td>
+      <td>
+        <img src="images/task6_presplit_cube3.PNG" align="middle" width="400px" />
+        <figcaption>Cube after 4 iterations of subdivision</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
 <br>
 
 
@@ -353,8 +425,35 @@ flag to false. Then, we iterate through every edge, computing it's new "midpoint
   Load dae/cube.dae. Perform several iterations of loop subdivision on the cube. Notice that the cube becomes slightly asymmetric after repeated subdivisions. Can you pre-process the cube with edge flips and splits so that the cube subdivides symmetrically? Document these effects and explain why they occur. Also explain how your pre-processing helps alleviate the effects.
 </b>
 <p>
-    YOUR RESPONSE GOES HERE
+    If we preprocess the cubes by using a combination of edge splits and flips, we can create an initial mesh where the corners all still have an 
+  the same amount of edges, but we also create more more edges on each face. This will allow the corners to be evenly rounded while maintaining it's 
+  cube-like features. When performing subdivisions, this allows there to be more edges created on the faces as well as the corners, so the cube isn't as
+  rounded than when just performing edge splits. We can see the result below.
 </p>
+<div align="middle">
+  <table style="width:100%">
+    <tr align="center">
+      <td>
+        <img src="images/task6_preprocess3_cube0.PNG" align="middle" width="400px" />
+        <figcaption>Cube preprocessed with edge splits and flips, no subdivisions</figcaption>
+      </td>
+      <td>
+        <img src="images/task6_preprocess3_cube1.PNG" align="middle" width="400px" />
+        <figcaption>Cube after 1 iteration of subdivision</figcaption>
+      </td>
+    </tr>
+    <tr align="center">
+      <td>
+        <img src="images/task6_preprocess3_cube2.PNG" align="middle" width="400px" />
+        <figcaption>Cube after 2 iterations of subdivision</figcaption>
+      </td>
+      <td>
+        <img src="images/task6_preprocess3_cube3.PNG" align="middle" width="400px" />
+        <figcaption>Cube after 4 iterations of subdivision</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
 <br>
 
 
@@ -362,38 +461,25 @@ flag to false. Then, we iterate through every edge, computing it's new "midpoint
     If you have implemented any extra credit extensions, explain what you did and document how they work with screenshots.
 </b>
 <p>
-    YOUR RESPONSE GOES HERE
+    While we didn't implement subdividing on boundaries, we added a check so that we don't update verticies that lie on boundary points, this
+  makes it so subdividing on meshes that contain boundaries won't have extraneous edges that go to infinity.
 </p>
+  <div align="middle">
+  <table style="width:100%">
+    <tr align="center">
+      <td>
+        <img src="images/task6_max_planck_subdivision_no_bounds.PNG" align="middle" width="400px" />
+        <figcaption>Max Planck after 1 iteration of subdivision, without a isBoundary() check. Note the lines at the bottom of the figure
+        that extend downwards</figcaption>
+      </td>
+      <td>
+        <img src="images/task6_max_planck_subdivision.PNG" align="middle" width="400px" />
+        <figcaption>Max Planck after 1 iteration of subdivision, with isBoundary() check</figcaption>
+      </td>
+    </tr>
+  </table>
+</div>
 <br>
-
-
-<h3 align="middle">Part 7 (Optional, Possible Extra Credit)</h3>
-<b>
-    Save your best polygon mesh as partsevenmodel.dae in your docs folder and show us a screenshot of the mesh in your write-up.
-</b>
-<p>
-    YOUR RESPONSE GOES HERE
-</p>
-<br>
-
-
-<b>
-    Include a series of screenshots showing your original mesh and your mesh after one and two rounds of subdivision. If you have used custom shaders, include screenshots of your mesh with those shaders applied as well.
-</b>
-<p>
-    YOUR RESPONSE GOES HERE
-</p>
-<br>
-
-
-<b>
-    Describe what you have done to enhance your mesh beyond the simple humanoid mesh described in the tutorial.
-</b>
-<p>
-    YOUR RESPONSE GOES HERE
-</p>
-<br>
-
 
 </body>
 </html>
