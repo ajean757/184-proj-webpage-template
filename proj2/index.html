@@ -145,16 +145,16 @@
 </b>
 <p>
     When applying de Casteljau's algorithm to surfaces, we have to linearly interpolate points in 2 dimensions of the \(n \times n\) grid of control points. 
-  The Bezier surface is defined by the parameters \((u, v)\), which represent postions that lie on the surfafce.
-  First, we run de Casteljau's on one dimension of the control point grid to get a list of intermediate interpolated points, \(P_i\) in 1 dimension that lie on the Bezier curve
-  on \(u\). We then take those intermediate points and run de Casteljau's again to get a final point \(P\) that lies on \(u\) and \(v\).
+  The Bezier surface is defined by the parameters \((u, v)\), which represent the parameters for the Bezier surface.
+  First, we run de Casteljau's on one dimension of the control point grid to get a list of intermediate interpolated points, \(P_i\), in 1 dimension that lie
+  on one dimension of the Bezier curve at parameter \(u\). We then take those intermediate points and run de Casteljau's again to get a final point \(P\) that lies the Bezier surface at
+  parameters \(u\) and \(v\).
 </p>
 <p>
   We defined three functions to implement this: <i>evaluateStep()</i>, <i>evaluate1D()</i>, and <i>evaluate()</i>. <i>evaluateStep()</i> behaves like the
   function we defined in part 1 where it performs 1 step of de Casteljau's, but updated to interpolate 3-D coordinates. <i>evaluate1D()</i> makes many calls to
   <i>evaluateStep()</i> such that we complete de Casteljau's algorithm for 1 dimension of control points. <i>evaluate()</i> takes in the \(n \times n\) grid 
   of control points, makes calls to <i>evaluate1D</i>, and outputs a single control point \(P\) that lies on the Bezier surface.
-  an
 </p>
 <br>
 
@@ -196,7 +196,7 @@
 </b>
 <p>
     We implemented the flip operation by first drawing out a diagram of how the new HalfEdges, Faces, Edges, and Verticies would change. First, we created
-  Iter objects to every one of the HalfEdges, Faces, Edges, and Verticies of the triangle traversable by the flipped Edge e0. Then we
+  Iter objects for every one of the HalfEdges, Faces, Edges, and Verticies of the triangle traversable by the flipped Edge e0. Then we
   translated the diagram by updating each of the respective pointers. We followed the reccomendation by updating all pointers even if they wouldn't change.
 
 </p>
@@ -250,7 +250,7 @@
   edge split. We initially created 4 Faces to replace the two existing ones, and two new HalfEdges to replace h0 and h3. This meant that we had to 
   delete unused elements, e0, h0, h3, f0, and f1. While this initially worked for independently testing this function, we encountered issues such as infinite
   loops or null pointer accesses when working on part 6. We decided to change the implementation so that we wouldn't have to delete any unused elements. We 
-  did this by just reassigning the old elements and creating a few less objects. This helped fix the null pointer accesses and some of the infinite loops
+  did this by just reassigning the old elements and creating a less objects. This helped fix the null pointer accesses and some of the infinite loops
   we encountered in part 6.
 </p>
 <br>
@@ -305,8 +305,8 @@
     Write about your eventful debugging journey, if you have experienced one.
 </b>
 <p>
-    We had to debug this function twice: once when we were implementing it, another when we were implementing part 6. The first time, the program would
-  crash after splitting an edge more than two or three times. It turns out it was another incorrect pointer assignment, and forgetting to assign some pointers,
+    We had to debug this function twice: once when we were implementing it and another when we were implementing part 6. The first time, the program would
+  crash after splitting an edge more than two or three times. It turns out we had an incorrect pointer assignment and forgot to assign some pointers,
   such as edges to halfedges. When implementing part 6, we came across null pointer accesses and infinite loops during the calls to <i>splitEdge()</i>, so
   we decided to rewrite our function such that we weren't deleting any elements. Although it took a while to realize <i>splitEdge()</i> was causing the issues,
   we were able to resolve some issues in part 6 with this fix.
@@ -390,7 +390,7 @@ flag to false. Then, we iterate through every edge, computing it's new "midpoint
 
 <p>
   If we preprocess the cube by performing some edge splits such that all corners have the same number of edges, we can create a more symmetrical 
-  render when we upsample. However, just by performing edge splits, the cube will become rounder and won't maintain it's sharper features the more we subdivide.
+  render when we subdivide. However, just by performing edge splits, the cube will become rounder and won't maintain it's sharper features the more we subdivide.
   Because the preprocessing resulted in more edges on each corner compared to the faces of the cube, the corners will become rounder
   faster than the faces of the cube as we repeatedly subdivide. This leads to the rounder shape that we observe.
 </p>
@@ -426,7 +426,7 @@ flag to false. Then, we iterate through every edge, computing it's new "midpoint
 </b>
 <p>
     If we preprocess the cubes by using a combination of edge splits and flips, we can create an initial mesh where the corners all still have an 
-  the same amount of edges, but we also create more more edges on each face. This will allow the corners to be evenly rounded while maintaining it's 
+  the same number of edges, but we also create more edges on each face. This will allow the corners to be evenly rounded while maintaining it's 
   cube-like features. When performing subdivisions, this allows there to be more edges created on the faces as well as the corners, so the cube isn't as
   rounded than when just performing edge splits. We can see the result below.
 </p>
@@ -480,6 +480,8 @@ flag to false. Then, we iterate through every edge, computing it's new "midpoint
   </table>
 </div>
 <br>
+
+<h2 align="middle"><a text-align="middle" href="https://ajean757.github.io/184-proj-writeups/proj2/index.html">Writeup</a></h2>
 
 </body>
 </html>
