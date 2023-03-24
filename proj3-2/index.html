@@ -99,7 +99,7 @@
       </b>
     </p>
     <p>
-      Your response goes here.
+      
     </p>
     <br />
     <p>
@@ -123,7 +123,7 @@
       </b>
     </p>
     <p>
-      The pinhole camera model
+      The pinhole camera model is modeled as an infinitely small lens radius, meaning we only process the light coming from one ray at a time. This allows us to "perfectly capture" all the details. In our implementation of the pinhole model, we have a camera at the origin facing the -Z axis. The thin-lens camera model allows us to simulate realistic photography effects, such as depth of field, by changing aperture and focal distance. In our thin-lens camera model implementation, we add a thin lens between the camera sensor and the scene. The image plane is at Z=1, thin-lens is at Z=0, and our plane of focus is at Z=-focalDistance. The thin lens allows us to simulate the lens of a real camera by sampling rays that hit the lens, rather than rays that hit a single point in the pinhole model. By uniformly sampling rays that hit the lens, we can model effects of changing aperture, such as increasing or reducing depth of field. Furthermore, by creating a focal plane, we can now simulate changes to focal distance, so we can focus on areas closer or farther to the camera. 
     </p>
     <br />
     <p>
@@ -189,7 +189,7 @@
       </table>
     </div>
     <p>
-      In this example, 
+      We can notice that a smaller lens radius means the simulation is closer to a pinhole camera, and everything is in focus. This is because as you decrease the lens radius, light can only reach the sensor through a small opening, causing more objects to be focused. As we increase the lens radius to 0.10, the background starts to become blurrier because light is allowed to spread out more as a result of the larger lens. As the lens radius increases to 0.23 and 0.50, we observe more parts of the dragon and background become blurrier.
     </p>
     <br />
 
