@@ -61,7 +61,8 @@
 
   <div>
     <h2 align="middle">Overview</h2>
-    <p>Give a high-level overview of what you implemented in this project. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the project.</p>
+    <p>In this project, we built a physics simulator for a cloth. First, we constructed a grid of point masses and springs, which will be used to model our cloth. Then, we wrote the simulation for the cloth. At each timestep, we apply external forces to the cloth, then calculate changes in positions using Verlet Integration, and then constrained the positions so they wouldn't stretch past a defined threshold. We also implemented collisions with other objects such as a sphere or plane, as well as self collisions such that the cloth can fall on top of itself like a real cloth. Finally, we added shaders to create different effects on our cloths and scene objects.
+    </p>
   </div>
 
   <a href="https://cs184.eecs.berkeley.edu/sp23/docs/proj4-part-1">
@@ -217,7 +218,7 @@
   </div>
 
   <p>
-    We can see from these images that the spring constant changes the "stiffness" of the cloth. With a low spring constant, the cloth is stretches more and we can see more ripples in the cloth near the top. When we have a large spring constant, the cloth doesn't stretch as much, and retains its original shape.
+    We can see from these images that the spring constant changes the "stiffness" of the cloth. With a low spring constant, the cloth stretches more, and we can see more ripples in the cloth near the top. When we have a large spring constant, the cloth doesn't stretch as much and retains its original shape.
   </p>
 
   <div align="middle">
@@ -264,7 +265,7 @@
   </div>
 
   <p>
-    As we increase damping, we increase how "wavy" the cloth moves. When damping is 0, the cloth ripples and sways back and forth a lot, it has a greater range of motion as it oscillates back and forth before coming to rest. When we increase damping to 0.758, the cloth falls down gently, maintaining a uniform shape as it falls to rest.
+    As we increase damping, we increase how "wavy" the cloth moves. When damping is 0, the cloth ripples and sways back and forth a lot, it has a greater range of motion as it oscillates. Furthermore, because damping affects the forces applied to the point masses by diminishing them over time, 0 damping causes the cloth to continue moving. When we increase damping to 0.758, the cloth falls down gently, maintaining a uniform shape as it falls to rest.
   </p>
 
   <blockquote>
@@ -319,7 +320,7 @@
   </blockquote>
 
   <p>
-    When we have a low spring constant, the cloth wraps more tightly around the sphere and we can see how the sphere bulges the cloth. At the default spring constant, we can see the cloth doesn't bend and wrap around the sphere as much as the low spring constant. With a high spring constant, the cloth is stiffer and doesn't comform to the sphere shape as much, we can see the outline of the sphere doesn't appear as prominently as the other images.
+    When we have a low spring constant, the cloth wraps more tightly around the sphere, and we can see how the sphere bulges the cloth. At the default spring constant, we can see the cloth doesn't bend and wrap around the sphere as much as the low spring constant. With a high spring constant, the cloth is stiffer and doesn't comform to the sphere shape as much, so we can see the outline of the sphere doesn't appear as prominently as the other images.
   </p>
 
 
@@ -438,7 +439,7 @@
   </div>
 
   <p>
-    Changing the spring constant affects the stretchiness of the cloth. With a low spring constant, we can see that when the cloth folds on top of itself, it's more deformed and the folds are tigher.
+    Changing the spring constant affects the stretchiness of the cloth. With a low spring constant, we can see that when the cloth folds on top of itself, it's more deformed and the folds are tighter.
   </p>
 
 
@@ -460,7 +461,8 @@
   </div>
 
   <p>
-    TODO
+    With a high spring constant, the cloth becomes stiffer. So when it folds it will tend to fold more symmetrically and be less prone small displacements in its structure. We observe this in the first image, where the cloth folds into many layers on top of itself. In the second image, we can still see a lot of structure in the folding when it gets closer to a resting position.
+
   </p>
 
 
@@ -476,7 +478,7 @@
   </blockquote>
 
   <p>
-    Because it's computationally expensive to run real time lighting operations on the CPU alongside other simulation logic, we need a faster way to render lighting effects. This is where shaders come in: shaders are programs separate from the main program that runs parallel on the GPU. There are two types of shaders, vertex shaders and fragment shaders. Like the name implies, vertex shaders apply transformations to verticies; we use them to output vectors with a change of basis applied to them or translations due to textures in displacement mapping. On the other hand, fragment shaders are responsible for processing shaders per fragment (a fragment can be analogous to a pixel), in which we take a some vector inputs and perform some calculations to output a color vector.
+    Because it's computationally expensive to run real time lighting operations on the CPU alongside other simulation logic, we need a faster way to render lighting effects. This is where shaders come in: shaders are programs separate from the main program that runs parallel on the GPU. There are two types of shaders, vertex shaders and fragment shaders. Like the name implies, vertex shaders apply transformations to verticies; we use them to output vectors with a change of basis applied to them or translations due to textures in displacement mapping. On the other hand, fragment shaders are responsible for processing shaders per fragment (a fragment can be analogous to a pixel), in which we take some vector inputs and perform some calculations to output a color vector.
   </p>
 
 
